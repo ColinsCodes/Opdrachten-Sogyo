@@ -30,7 +30,7 @@ public class Hangman {
         // else{
         //    int n = userWord.length();
         //test edit
-                
+
         char[] noGuess = new char[userWord.length()];       //New array with length of word
         noGuess = userWord.toCharArray();                   //fill array with "unguessed" letters
         char[] hangBoard = new char[userWord.length()];     //create new array with length of word
@@ -38,27 +38,27 @@ public class Hangman {
         for (i=0; i<userWord.length(); i++) {               //fill array with character '-' for every letter
             hangBoard[i] = '-';
         }
-        System.out.println("Huidig spelbord:" + newLine + Arrays.toString(hangBoard) + newLine + "Wat is uw zet?");
-        Scanner letterInput = new Scanner(System.in);       //letter input
-        char letterHuidig = wordInput.nextLine().charAt(0); //fill array slot with
-        i = 0;
-        boolean match = false;
-        for (i=0; i<userWord.length(); i++){
-            if (letterHuidig == hangBoard[i]){
-                hangBoard[i] = letterHuidig;
-                match = true;
+        int j = 0;
+        int lives = 10;
+        while(lives > 0 ) {
+            System.out.println("Huidig spelbord:" + newLine + "Wat is uw zet?");
+            System.out.println(hangBoard);
+            Scanner letterInput = new Scanner(System.in);       //letter input
+            char letterHuidig = wordInput.nextLine().charAt(0); //letterHuidig is first letter of user input
+            i = 0;
+            boolean match = false;                              //setup boolean om te bepalen of de gok goed was
+            for (i = 0; i < userWord.length(); i++) {                //check het hele woord voor matches
+                if (letterHuidig == noGuess[i]) {              //als gecheckte letter i gelijk is aan huidige letter
+                    hangBoard[i] = letterHuidig;
+                    match = true;
+                }
+            }
+            //clear screen
+            System.out.println("\f");
+            if (!match) {
+                lives = lives -1;
+                System.out.println("Deze letter is niet goed..." + newLine + "Huidige levens: " + lives);
             }
         }
-        //clear screen
-        System.out.println("\f");
-        if (match){
-            System.out.println("Correcte letter!");
-        }
-        else{
-        System.out.println("Deze letter is niet goed..." + newLine + "Huidige levens: ");
-        }
-
-
-
     }
 }
