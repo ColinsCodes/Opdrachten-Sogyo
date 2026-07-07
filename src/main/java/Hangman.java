@@ -29,6 +29,7 @@ public class Hangman {
         // }
         // else{
         //    int n = userWord.length();
+        //test edit
                 
         char[] noGuess = new char[userWord.length()];       //New array with length of word
         noGuess = userWord.toCharArray();                   //fill array with "unguessed" letters
