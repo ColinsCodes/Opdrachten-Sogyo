@@ -93,10 +93,10 @@ public class Roborally {
             while (loop) {
                 String userInput = action.nextLine();       //input
                 if (userInput.matches("links")) {       //check input
-                    executor.commandAdd(() -> robot1.direction = robot1.direction.links());
+                    executor.commandAdd(() -> robot1.direction = robot1.direction.links());     //voegt commando "links" aan de lijst toe
                 } else if (userInput.matches("rechts")) {
-                    executor.commandAdd(() -> robot1.direction = robot1.direction.rechts());
-                } else if (userInput.matches("rechtdoor")) {
+                    executor.commandAdd(() -> robot1.direction = robot1.direction.rechts());   //voegt commando "rechts" aan de lijst toe
+                } else if (userInput.matches("rechtdoor")) {                    //als rechtdoor, vraag om snelheid
                     boolean speedSet = false;
                     while(!speedSet) {
                         System.out.println("Hoe snel? (1-3)");      //check snelheid
@@ -122,22 +122,20 @@ public class Roborally {
                             } catch (NumberFormatException e) {
                                 System.out.println("Dat is geen nummer, probeer opnieuw.");
                             }
-
                         }
                     }
-                } else if (userInput.matches("terug")) {
+                } else if (userInput.matches("terug")) {            //als terug, voer commando terug door
                     executor.commandAdd(() -> robot1.backward());
-                } else if (userInput.matches("klaar")) {
+                } else if (userInput.matches("klaar")) {            //als klaar, stop loop
                     loop = false;
                 } else {
-                    System.out.println("Ongeldige zet, probeer opnieuw.");
+                    System.out.println("Ongeldige zet, probeer opnieuw.");  //als niet voor, niet links, niet rechts, niet terug, ongeldige zet
                 }
                 if(loop) {
-                    System.out.println("Volgende zet? Of typ \"klaar\"");
+                    System.out.println("Volgende zet? Of typ \"klaar\"");   //als zet succesvol gedaan en loop intact, print info
                 }
             }
         executor.executeALL(); //als de gebruiker "klaar" is, verstuurt alles tegelijk
         }
     }
-
 }
