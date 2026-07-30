@@ -2,27 +2,48 @@ package nl.sogyo.javaopdrachten;
 
 public abstract class MancalaPocketGeneric {
     protected int stones;
+    protected int playerBelong;
     protected MancalaPocketGeneric nextPocket;
-    public MancalaPocketGeneric(){
-    }
+    protected MancalaSharedData sharedData;
+    public abstract void playPocket();
+    protected abstract void passStones(int stonesAmount);
+    protected abstract int stepsFromKalaha();
+
+    protected MancalaPocketGeneric(){}
     public int getStones() {
         return stones;
     }
-    public abstract void transferStones(int stonesAmount);
-    public MancalaPocketGeneric getPocket(int nr){
-        if (nr < 2) {
+    protected void setStones(int stoneCount) {
+        this.stones = stoneCount;
+    }
+    public void addStones(int count){
+        this.stones += count;
+    }
+    public MancalaPocketGeneric nextPocket(int nr){
+        if (nr < 1) {
             return this;
         }
-        return this.nextPocket.getPocket(nr - 1);
-
+        return this.nextPocket.nextPocket(nr - 1);
     }
-//    public static MancalaPocketGeneric createBoard(int initialPocket) {
-//        if (initialPocket % 7 == 0) {
-//            return new MancalaKalaha(createBoard(++initialPocket));
-//        } else if (initialPocket < 14) {
-//            return new MancalaPocket(createBoard(++initialPocket));
-//        } else {
-//            return null;
-//        }
-//    }
+    protected void switchPlayer() {
+        if ((this.nextPocket(this.stepsFromKalaha()).nextPocket.getStones() == 0 &&
+                this.nextPocket(this.stepsFromKalaha()).nextPocket(2).getStones() == 0 &&
+                this.nextPocket(this.stepsFromKalaha()).nextPocket(3).getStones() == 0 &&
+                this.nextPocket(this.stepsFromKalaha()).nextPocket(4).getStones() == 0 &&
+                this.nextPocket(this.stepsFromKalaha()).nextPocket(5).getStones() == 0 &&
+                this.nextPocket(this.stepsFromKalaha()).nextPocket(6).getStones() == 0)
+                ||
+                (this.nextPocket(this.stepsFromKalaha()).nextPocket(8).getStones() == 0 &&
+                this.nextPocket(this.stepsFromKalaha()).nextPocket(9).getStones() == 0 &&
+                this.nextPocket(this.stepsFromKalaha()).nextPocket(10).getStones() == 0 &&
+                this.nextPocket(this.stepsFromKalaha()).nextPocket(11).getStones() == 0 &&
+                this.nextPocket(this.stepsFromKalaha()).nextPocket(12).getStones() == 0 &&
+                this.nextPocket(this.stepsFromKalaha()).nextPocket(13).getStones() == 0)) {
+            sharedData.endGame();
+            sharedData.setEmptyPlayer(sharedData.getPlayerTurn());
+        }
+        if (!sharedData.isGameEnd()) {
+            sharedData.switchPlayerTurn();
+        }
+    }
 }
