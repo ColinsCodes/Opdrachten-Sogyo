@@ -1,23 +1,36 @@
 package nl.sogyo.javaopdrachten;
 
 public abstract class MancalaPocketGeneric {
-    protected int stones;
-    protected int playerBelong;
-    protected MancalaPocketGeneric nextPocket;
-    protected MancalaSharedData sharedData;
+    int stones;
+    int pocketOwner;
+    MancalaPocketGeneric nextPocket;
+    MancalaSharedData sharedData;
     public abstract void playPocket();
-    protected abstract void passStones(int stonesAmount);
-    protected abstract int stepsFromKalaha();
-
-    protected MancalaPocketGeneric(){}
+    abstract void passStones(int stonesAmount);
+    MancalaPocketGeneric(MancalaPocketGeneric nextPocket, int identity, MancalaSharedData sharedData, int stones){
+        this.nextPocket = nextPocket;
+        this.pocketOwner = identity;
+        this.sharedData = sharedData;
+        this.stones = stones;
+    }
     public int getStones() {
-        return stones;
+        return this.stones;
     }
-    protected void setStones(int stoneCount) {
-        this.stones = stoneCount;
+    void setStones(int count) {
+        this.stones = count;
     }
-    public void addStones(int count){
+    void addStones(int count){
         this.stones += count;
+    }
+    int stepsFromKalaha(){
+        if(this instanceof MancalaKalaha) {
+            return 0;
+        }
+        if (this.nextPocket instanceof MancalaKalaha) {
+            return 1;
+        } else {
+            return this.nextPocket.stepsFromKalaha() + 1;
+        }
     }
     public MancalaPocketGeneric nextPocket(int nr){
         if (nr < 1) {
@@ -25,25 +38,28 @@ public abstract class MancalaPocketGeneric {
         }
         return this.nextPocket.nextPocket(nr - 1);
     }
-    protected void switchPlayer() {
-        if ((this.nextPocket(this.stepsFromKalaha()).nextPocket.getStones() == 0 &&
-                this.nextPocket(this.stepsFromKalaha()).nextPocket(2).getStones() == 0 &&
-                this.nextPocket(this.stepsFromKalaha()).nextPocket(3).getStones() == 0 &&
-                this.nextPocket(this.stepsFromKalaha()).nextPocket(4).getStones() == 0 &&
-                this.nextPocket(this.stepsFromKalaha()).nextPocket(5).getStones() == 0 &&
-                this.nextPocket(this.stepsFromKalaha()).nextPocket(6).getStones() == 0)
-                ||
-                (this.nextPocket(this.stepsFromKalaha()).nextPocket(8).getStones() == 0 &&
-                this.nextPocket(this.stepsFromKalaha()).nextPocket(9).getStones() == 0 &&
-                this.nextPocket(this.stepsFromKalaha()).nextPocket(10).getStones() == 0 &&
-                this.nextPocket(this.stepsFromKalaha()).nextPocket(11).getStones() == 0 &&
-                this.nextPocket(this.stepsFromKalaha()).nextPocket(12).getStones() == 0 &&
-                this.nextPocket(this.stepsFromKalaha()).nextPocket(13).getStones() == 0)) {
-            sharedData.endGame();
-            sharedData.setEmptyPlayer(sharedData.getPlayerTurn());
-        }
+    void switchPlayer() {
         if (!sharedData.isGameEnd()) {
             sharedData.switchPlayerTurn();
+        }
+    }
+    void checkGameEnd() {
+        emptyChecker(this.getFirstPocketBelongToPlayer(1), 0);
+        emptyChecker(this.getFirstPocketBelongToPlayer(2), 0);
+    }
+    void emptyChecker(MancalaPocketGeneric pocket, int num) {
+        if (pocket.getStones() == 0 && !(pocket instanceof MancalaKalaha)) {
+            emptyChecker(pocket.nextPocket,num+1);
+        }
+        if (pocket instanceof MancalaKalaha) {
+            sharedData.endGame(pocket);
+        }
+    }
+    public MancalaPocketGeneric getFirstPocketBelongToPlayer(int playerNumber) {
+        if (this instanceof MancalaKalaha && this.nextPocket.pocketOwner == playerNumber) {
+            return this.nextPocket;
+        } else {
+            return this.nextPocket.getFirstPocketBelongToPlayer(playerNumber);
         }
     }
 }
