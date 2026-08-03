@@ -7,22 +7,35 @@ public class MancalaSharedData {
     private int scorePlayer1;
     private int scorePlayer2;
 
-    public int getPlayerTurn() {
+    int getPlayerTurn() {
         return playerTurn;
     }
-    public int getScorePlayer1() {
+    int getScorePlayer1() {
         return scorePlayer1;
     }
-    public int getScorePlayer2() {
+    int getScorePlayer2() {
         return scorePlayer2;
     }
-    boolean isGameEnd(){
-        return gameEnd;
+    int getWinner() { return winner; }
+    boolean isGameEnd() { return gameEnd; }
+    void setScorePlayer1(int score) {
+        scorePlayer1 = score;
     }
-    int getWinner() {
-        return winner;
+    void setScorePlayer2(int score) {
+        scorePlayer2 = score;
     }
-    public MancalaPocketGeneric boardGenerator(int pocketnr, MancalaSharedData sharedData) {
+    void setWinner() {
+        winner = (Integer.compare(scorePlayer1, scorePlayer2));
+        gameEnd = true;
+    }
+    void switchPlayerTurn() {
+        if (playerTurn == 1) {
+            playerTurn = 2;
+        } else {
+            playerTurn = 1;
+        }
+    }
+    MancalaPocketGeneric boardGenerator(int pocketnr, MancalaSharedData sharedData) {
         if (pocketnr < 7) {
             return new MancalaPocket(boardGenerator(pocketnr+1, sharedData), 1, sharedData);
         }
@@ -34,44 +47,4 @@ public class MancalaSharedData {
         }
         return new MancalaPocket(boardGenerator(pocketnr+1, sharedData), 2, sharedData);
     }
-    public void loopCloser(MancalaPocketGeneric firstPocket) {
-        firstPocket.nextPocket(13).nextPocket = firstPocket;
-    }
-    void switchPlayerTurn() {
-        if (playerTurn == 1) {
-            playerTurn = 2;
-        } else {
-            playerTurn = 1;
-        }
-    }
-    void endGame(MancalaPocketGeneric pocket){
-        scorePlayer1 = scoreAdder(pocket.getFirstPocketBelongToPlayer(1));
-        scorePlayer2 = scoreAdder(pocket.getFirstPocketBelongToPlayer(2));
-
-        if (scorePlayer1 == scorePlayer2) {
-            winner = 3;
-        }
-        if (scorePlayer2 > scorePlayer1) {
-            winner = 2;
-        }
-        if (scorePlayer1 > scorePlayer2) {
-            winner = 1;
-        }
-        gameEnd = true;
-    }
-    int scoreAdder(MancalaPocketGeneric firstPocketOfPlayerX){
-        if (firstPocketOfPlayerX instanceof MancalaKalaha) {
-            return firstPocketOfPlayerX.getStones();
-        } else {
-            return scoreAdder(firstPocketOfPlayerX.nextPocket, firstPocketOfPlayerX.getStones());
-        }
-    }
-    int scoreAdder(MancalaPocketGeneric pocket, int num){
-        if (pocket instanceof MancalaKalaha) {
-            return num + pocket.getStones();
-        } else {
-            return scoreAdder(pocket.nextPocket, num + pocket.getStones());
-        }
-    }
-
 }

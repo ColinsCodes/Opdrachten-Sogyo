@@ -2,22 +2,24 @@ package nl.sogyo.javaopdrachten;
 
 import Exceptions.UnplayablePocketException;
 
-public class MancalaKalaha extends MancalaPocketGeneric {
+class MancalaKalaha extends MancalaPocketGeneric {
     MancalaKalaha(MancalaPocketGeneric nextPocket, int identity, MancalaSharedData sharedData) {
         super(nextPocket, identity, sharedData, 0);
     }
+    int kalahaStepCounter() {
+        return 0;
+    }
     void passStones(int stonesAmount) {
-        if (sharedData.getPlayerTurn() == pocketOwner) {
-            --stonesAmount;
-            this.addStones(1);
-            //no need to switchPlayer() here because player gets another turn if the final stone lands in kalaha
+        if (sharedData.getPlayerTurn() == getPocketOwner() && stonesAmount > 0) {
+            stonesAmount -= 1;
+            addStones(1);
         }
         if (stonesAmount > 0) {
-            this.nextPocket.passStones(stonesAmount);
+            nextPocket(1).passStones(stonesAmount);
         }
         checkGameEnd();
     }
-    public void playPocket() {
+    void playPocket() {
         throw new UnplayablePocketException("This pocket cannot be played. Please select another.");
     }
 }

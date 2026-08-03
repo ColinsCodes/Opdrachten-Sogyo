@@ -5,29 +5,14 @@ import org.junit.jupiter.api.*;
 public class MancalaPocketGenericTest {
     private MancalaSharedData sharedData;
     private MancalaPocketGeneric pocket1;
+    private MancalaFaçade domainInterface;
     @BeforeEach
     public void testSetup() {
         sharedData = new MancalaSharedData();
         pocket1 =  new MancalaPocket(sharedData.boardGenerator(2, sharedData), 1, sharedData);
-        sharedData.loopCloser(pocket1);
-    }
-    @Test
-    public void newPocketContentsEqualsFour() {
-        MancalaPocketGeneric pocket1 = new MancalaPocket(null, 1, null);
-        int stones = pocket1.getStones();
-        Assertions.assertEquals(4, stones);
-    }
-    @Test
-    public void newKalahaContentsEqualsZero() {
-        MancalaPocketGeneric pocket1 = new MancalaKalaha(null, 1, null);
-        int stones = pocket1.getStones();
-        Assertions.assertEquals(0, stones);
-    }
-    @Test
-    public void createSeveralPockets(){
-        MancalaPocketGeneric pocket1 = new MancalaPocket(new MancalaPocket(new MancalaPocket(null, 1, null), 1, null), 1, null);
-        int stones = pocket1.nextPocket(2).getStones();
-        Assertions.assertEquals(4, stones);
+        pocket1.loopCloser();
+        domainInterface = new MancalaFaçade();
+        domainInterface.initializeGame();
     }
     @Test
     public void createAllPocketsAndKalahas(){
@@ -37,8 +22,17 @@ public class MancalaPocketGenericTest {
         Assertions.assertEquals(0, stones);
     }
     @Test
+    public void nextPocketZeroEqualsCurrentPocket() {
+        Assertions.assertEquals(pocket1, pocket1.nextPocket(0));
+    }
+    @Test
+    public void negativeNextPocketThrowsException() {
+        Assertions.assertThrows(UnplayablePocketException.class, () -> {pocket1.nextPocket(-4);});
+    }
+    @Test
     public void circularizePockets(){
-        int stones = pocket1.nextPocket(36).getStones();
+        int loopCount = 15;
+        int stones = pocket1.nextPocket(14 * loopCount).getStones();
 
         Assertions.assertEquals(4, stones);
     }
@@ -49,13 +43,36 @@ public class MancalaPocketGenericTest {
         Assertions.assertEquals(0, pocket1.nextPocket(2).getStones());
     }
     @Test
+    public void passingNegativeStonesDoesNothing() {
+        pocket1.passStones(-1);
+
+        Assertions.assertEquals(4, pocket1.getStones());
+    }
+    @Test
+    public void passingNegativeStonesToKalahaDoesNothing() {
+        pocket1.nextPocket(6).setStones(15);
+        pocket1.nextPocket(6).passStones(-1);
+        Assertions.assertEquals(15, pocket1.nextPocket(6).getStones());
+    }
+    @Test
+    public void pocketsPlayable() {
+        pocket1.playPocket();
+        Assertions.assertEquals(0, pocket1.getStones());
+    }
+    @Test
+    public void emptyPocketNotPlayable() {
+        pocket1.setStones(0);
+
+        Assertions.assertThrows(UnplayablePocketException.class, () -> {pocket1.playPocket();});
+    }
+    @Test
     public void stoneReceiving() {
         pocket1.nextPocket(2).playPocket();
 
         Assertions.assertEquals(5, pocket1.nextPocket(3).getStones());
     }
     @Test
-    public void stonesNonInfinite() {
+    public void passedStonesNonInfinite() {
         pocket1.nextPocket(2).playPocket();
 
         Assertions.assertEquals(4, pocket1.nextPocket(10).getStones());
@@ -86,7 +103,7 @@ public class MancalaPocketGenericTest {
     @Test
     public void pocketBelongToPlayerGetterWorks() {
         pocket1.nextPocket(268);
-        int playernr = pocket1.nextPocket(268).getFirstPocketBelongToPlayer(2).pocketOwner;
+        int playernr = pocket1.nextPocket(268).getFirstPocketBelongToPlayer(2).getPocketOwner();
         Assertions.assertEquals(2, playernr);
     }
     @Test
@@ -98,15 +115,29 @@ public class MancalaPocketGenericTest {
         Assertions.assertEquals(5, pocket1.nextPocket(6).getStones());
     }
     @Test
+    public void oppositeStonesNotClaimedWhenFinalPocketBelongsToOpponent() {
+        pocket1.nextPocket(7).setStones(0);
+        pocket1.nextPocket(3).playPocket();
+        Assertions.assertEquals(5, pocket1.nextPocket(5).getStones());
+    }
+    @Test
     public void playerNotSwitchedWhenKalahaFinalStone(){
         pocket1.nextPocket(2).playPocket();
 
         Assertions.assertEquals(1, sharedData.getPlayerTurn());
     }
     @Test
+    public void testScoreAdder() {
+        pocket1.setStones(15);
+
+        int initialScore = pocket1.scoreAdder(pocket1);
+
+        Assertions.assertEquals(4 * 5 + 15, initialScore);
+    }
+    @Test
     public void gameCanEnd(){
         pocket1.setStones(0);
-        pocket1.nextPocket.setStones(0);
+        pocket1.nextPocket(1).setStones(0);
         pocket1.nextPocket(2).setStones(0);
         pocket1.nextPocket(3).setStones(0);
         pocket1.nextPocket(4).setStones(0);
@@ -118,7 +149,7 @@ public class MancalaPocketGenericTest {
     @Test
     public void winnerDeclared(){
         pocket1.setStones(0);
-        pocket1.nextPocket.setStones(0);
+        pocket1.nextPocket(1).setStones(0);
         pocket1.nextPocket(2).setStones(0);
         pocket1.nextPocket(3).setStones(0);
         pocket1.nextPocket(4).setStones(0);
@@ -126,14 +157,14 @@ public class MancalaPocketGenericTest {
 
         pocket1.nextPocket(5).playPocket();
 
-        Assertions.assertEquals(2, sharedData.getWinner());
+        Assertions.assertEquals(-1, sharedData.getWinner());
     }
     @Test
-    public void scoreAdderAddsScores() {
-        sharedData.endGame(pocket1);
+    public void testEndGameAddsScores() {
+        pocket1.tallyScores();
 
         int scorePlayer1 = pocket1.getStones() +
-                pocket1.nextPocket.getStones() +
+                pocket1.nextPocket(1).getStones() +
                 pocket1.nextPocket(2).getStones() +
                 pocket1.nextPocket(3).getStones() +
                 pocket1.nextPocket(4).getStones() +
@@ -142,4 +173,14 @@ public class MancalaPocketGenericTest {
 
         Assertions.assertEquals(scorePlayer1, sharedData.getScorePlayer1());
     }
+    @Test
+    public void simulatedGameLosesNoStones() {
+        int[] moves = {3, 6, 9, 10, 1, 11, 1, 12, 1, 13};
+        for (int move : moves) {
+            domainInterface.playPocket(move);
+        }
+        Assertions.assertEquals(48, domainInterface.getScore(1) + domainInterface.getScore(2));
+        Assertions.assertTrue(domainInterface.isGameEnd());
+    }
+
 }

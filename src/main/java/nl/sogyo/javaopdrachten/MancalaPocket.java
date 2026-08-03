@@ -2,44 +2,55 @@ package nl.sogyo.javaopdrachten;
 
 import Exceptions.UnplayablePocketException;
 
-public class MancalaPocket extends MancalaPocketGeneric {
-    public MancalaPocket(MancalaPocketGeneric nextPocket, int identity, MancalaSharedData sharedData) {
+class MancalaPocket extends MancalaPocketGeneric {
+    private final int stepsFromKalaha;
+    MancalaPocket(MancalaPocketGeneric nextPocket, int identity, MancalaSharedData sharedData) {
         super(nextPocket, identity, sharedData, 4);
+        this.stepsFromKalaha = kalahaStepCounter();
+    }
+    int kalahaStepCounter(){
+        if (nextPocket(1) instanceof MancalaKalaha) {
+            return 1;
+        } else {
+            return nextPocket(1).kalahaStepCounter() + 1;
+        }
+    }
+    MancalaPocketGeneric oppositePocket(){
+        return nextPocket(stepsFromKalaha*2);
+    }
+    void claimOpposite () {
+        addStones(oppositePocket().getStones());
+        oppositePocket().setStones(0);
     }
     void passStones(int stonesAmount) {
-        this.addStones(1);
-        stonesAmount -= 1;
         if (stonesAmount > 0) {
-            this.nextPocket.passStones(stonesAmount);
+            addStones(1);
+            stonesAmount -= 1;
         }
-        if (this.oppositePocket().getStones() > 0 && this.getStones() == 1 && stonesAmount <= 0 && this.pocketOwner == sharedData.getPlayerTurn()) {
+        if (oppositePocket().getStones() > 0 && getStones() == 1 && stonesAmount == 0 && getPocketOwner() == sharedData.getPlayerTurn()) {
             claimOpposite();
-            this.nextPocket(this.stepsFromKalaha()).addStones(this.getStones());
-            this.setStones(0);
+            nextPocket(stepsFromKalaha).addStones(getStones());
+            setStones(0);
         }
-        if (stonesAmount <= 0) {
+        if (stonesAmount > 0) {
+            nextPocket(1).passStones(stonesAmount);
+        } else {
             checkGameEnd();
             switchPlayer();
         }
     }
-    MancalaPocketGeneric oppositePocket(){
-        return this.nextPocket(this.stepsFromKalaha()*2);
-    }
-    void claimOpposite () {
-        this.addStones(this.oppositePocket().getStones());
-        this.oppositePocket().setStones(0);
-    }
-    public void playPocket() {
-        if (this.getStones() == 0) {
-            throw new UnplayablePocketException("This pocket is empty. Please select another.");
+    void playPocket() {
+        if (sharedData.getPlayerTurn() == getPocketOwner() && getStones() > 0) {
+            int stonesAmount = getStones();
+            setStones(0);
+            nextPocket(1).passStones(stonesAmount);
+            return;
         }
-        if (sharedData.getPlayerTurn() == pocketOwner) {
-            int stonesToPass = this.getStones();
-            this.setStones(0);
-            this.nextPocket.passStones(stonesToPass);
-        } else {
+        if (sharedData.getPlayerTurn() != getPocketOwner()) {
             throw new UnplayablePocketException("This pocket is not yours to select. The turn belongs to player: " + sharedData.getPlayerTurn());
-
+        }
+        if (getStones() == 0 && sharedData.getPlayerTurn() == getPocketOwner()) {
+            throw new UnplayablePocketException("This pocket is empty. Please select another.");
         }
     }
 }
