@@ -47,7 +47,7 @@ class MancalaPocket extends MancalaPocketGeneric {
             return;
         }
         if (sharedData.getPlayerTurn() != getPocketOwner()) {
-            throw new UnplayablePocketException("This pocket is not yours to select. The turn belongs to player: " + sharedData.getPlayerTurn());
+            throw new UnplayablePocketException("This pocket is not yours. Current player: " + sharedData.getPlayerTurn());
         }
         if (getStones() == 0 && sharedData.getPlayerTurn() == getPocketOwner()) {
             throw new UnplayablePocketException("This pocket is empty. Please select another.");

@@ -9,15 +9,14 @@ public class MancalaPocketGenericTest {
     @BeforeEach
     public void testSetup() {
         sharedData = new MancalaSharedData();
-        pocket1 =  new MancalaPocket(sharedData.boardGenerator(2, sharedData), 1, sharedData);
-        pocket1.loopCloser();
         domainInterface = new MancalaFaçade();
-        domainInterface.initializeGame();
+        pocket1 =  new MancalaPocket(domainInterface.boardGenerator(2, sharedData), 1, sharedData);
+        pocket1.nextPocket(13).setNextPocket(pocket1);
     }
     @Test
     public void createAllPocketsAndKalahas(){
         MancalaSharedData sharedData = new MancalaSharedData();
-        MancalaPocketGeneric pocket1 =  new MancalaPocket(sharedData.boardGenerator(2, sharedData), 1, sharedData);
+        MancalaPocketGeneric pocket1 =  new MancalaPocket(domainInterface.boardGenerator(2, sharedData), 1, sharedData);
         int stones = pocket1.nextPocket(13).getStones();
         Assertions.assertEquals(0, stones);
     }
@@ -62,8 +61,11 @@ public class MancalaPocketGenericTest {
     @Test
     public void emptyPocketNotPlayable() {
         pocket1.setStones(0);
-
         Assertions.assertThrows(UnplayablePocketException.class, () -> {pocket1.playPocket();});
+    }
+    @Test
+    public void kahalaNotPlayable() {
+        Assertions.assertThrows(UnplayablePocketException.class, () -> pocket1.nextPocket(6).playPocket());
     }
     @Test
     public void stoneReceiving() {
@@ -86,10 +88,6 @@ public class MancalaPocketGenericTest {
         pocket1.nextPocket(3).playPocket();
 
         Assertions.assertEquals(2, sharedData.getPlayerTurn());
-    }
-    @Test
-    public void kahalaNonPlayable() {
-        Assertions.assertThrows(UnplayablePocketException.class, () -> pocket1.nextPocket(6).playPocket());
     }
     @Test
     public void personalKalahaFilledButOpponentKalahaSkipped(){

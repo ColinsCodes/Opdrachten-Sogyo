@@ -1,5 +1,7 @@
 import java.util.InputMismatchException;
 import java.util.Scanner;
+
+import Exceptions.UnplayablePocketException;
 import nl.sogyo.javaopdrachten.*;
 
 class MancalaRunner {
@@ -7,14 +9,14 @@ class MancalaRunner {
     void main(String[] args) {
         String newLine = System.lineSeparator();
         MancalaFaçade Façade = new MancalaFaçade();
-        Façade.initializeGame();
         System.out.println("Welcome to Mancala! Please decide who is player 1.");
         while (!Façade.isGameEnd()) {
             System.out.println(newLine + "The current gameboard:");
             gameBoard(Façade.gameState());
             System.out.println("It is player " + Façade.gameTurn() + "'s turn." + newLine);
-            Exception e = Façade.playPocket(getInput());
-            if (e != null) {
+            try {
+                Façade.playPocket(getInput());
+            } catch (UnplayablePocketException e) {
                 System.out.println("Invalid move: " + e.getMessage());
             }
         }

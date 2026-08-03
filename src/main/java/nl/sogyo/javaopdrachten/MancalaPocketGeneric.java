@@ -28,8 +28,8 @@ abstract class MancalaPocketGeneric {
     int getPocketOwner() {
         return pocketOwner;
     }
-    void loopCloser() {
-        nextPocket(13).nextPocket = this;
+    void setNextPocket(MancalaPocketGeneric firstPocket){
+        nextPocket = firstPocket;
     }
     MancalaPocketGeneric nextPocket(int nr){
         if (nr == 0) {
