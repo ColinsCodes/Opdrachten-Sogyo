@@ -3,8 +3,8 @@ package nl.sogyo.javaopdrachten;
 import Exceptions.UnplayablePocketException;
 
 class MancalaKalaha extends MancalaPocketGeneric {
-    MancalaKalaha(MancalaPocketGeneric nextPocket, int identity, MancalaSharedData sharedData) {
-        super(nextPocket, identity, sharedData, 0);
+    MancalaKalaha(MancalaPocketGeneric nextPocket, int owner, MancalaSharedData sharedData) {
+        super(nextPocket, owner, sharedData, 0);
     }
     int kalahaStepCounter() {
         return 0;
@@ -16,8 +16,9 @@ class MancalaKalaha extends MancalaPocketGeneric {
         }
         if (stonesAmount > 0) {
             nextPocket(1).passStones(stonesAmount);
+        } else {
+            checkGameEnd();
         }
-        checkGameEnd();
     }
     void playPocket() {
         throw new UnplayablePocketException("This pocket cannot be played. Please select another.");

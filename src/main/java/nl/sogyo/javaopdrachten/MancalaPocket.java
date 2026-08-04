@@ -4,8 +4,8 @@ import Exceptions.UnplayablePocketException;
 
 class MancalaPocket extends MancalaPocketGeneric {
     private final int stepsFromKalaha;
-    MancalaPocket(MancalaPocketGeneric nextPocket, int identity, MancalaSharedData sharedData) {
-        super(nextPocket, identity, sharedData, 4);
+    MancalaPocket(MancalaPocketGeneric nextPocket, int owner, MancalaSharedData sharedData) {
+        super(nextPocket, owner, sharedData, 4);
         this.stepsFromKalaha = kalahaStepCounter();
     }
     int kalahaStepCounter(){
@@ -36,7 +36,7 @@ class MancalaPocket extends MancalaPocketGeneric {
             nextPocket(1).passStones(stonesAmount);
         } else {
             checkGameEnd();
-            switchPlayer();
+            sharedData.switchTurn();
         }
     }
     void playPocket() {

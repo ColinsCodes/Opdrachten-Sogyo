@@ -1,11 +1,15 @@
 package nl.sogyo.javaopdrachten;
 
-public class MancalaSharedData {
+class MancalaSharedData {
     private int playerTurn = 1;
     private int scorePlayer1;
     private int scorePlayer2;
     private int winner;
     private boolean gameEnd;
+    final int pocketsPerSide;
+    MancalaSharedData(int pocketsPerSide) {
+        this.pocketsPerSide = pocketsPerSide;
+    }
     int getPlayerTurn() {
         return playerTurn;
     }
@@ -28,14 +32,17 @@ public class MancalaSharedData {
         scorePlayer2 = score;
     }
     void setWinner() {
-        winner = (Integer.compare(scorePlayer1, scorePlayer2));
+        switch (Integer.compare(scorePlayer1, scorePlayer2)) {
+            case 0 -> winner = 3;
+            case 1 -> winner = 1;
+            case -1 -> winner = 2;
+            default -> winner = 0;
+        }
         gameEnd = true;
     }
-    void switchPlayerTurn() {
-        if (playerTurn == 1) {
-            playerTurn = 2;
-        } else {
-            playerTurn = 1;
+    void switchTurn() {
+        if (!gameEnd) {
+            playerTurn = 3 - playerTurn;
         }
     }
 }

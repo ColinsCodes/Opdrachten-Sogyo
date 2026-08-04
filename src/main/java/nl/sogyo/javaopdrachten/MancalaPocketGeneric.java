@@ -1,18 +1,18 @@
 package nl.sogyo.javaopdrachten;
 
-import Exceptions.UnplayablePocketException;
+import java.util.InputMismatchException;
 
 abstract class MancalaPocketGeneric {
     private int stones;
     private final int pocketOwner;
-    private MancalaPocketGeneric nextPocket;
+    MancalaPocketGeneric nextPocket;
     MancalaSharedData sharedData;
     abstract void playPocket();
     abstract void passStones(int stonesAmount);
     abstract int kalahaStepCounter();
-    MancalaPocketGeneric(MancalaPocketGeneric nextPocket, int identity, MancalaSharedData sharedData, int stones){
+    MancalaPocketGeneric(MancalaPocketGeneric nextPocket, int owner, MancalaSharedData sharedData, int stones){
         this.nextPocket = nextPocket;
-        this.pocketOwner = identity;
+        this.pocketOwner = owner;
         this.sharedData = sharedData;
         this.stones = stones;
     }
@@ -20,7 +20,7 @@ abstract class MancalaPocketGeneric {
         return this.stones;
     }
     void setStones(int count) {
-        this.stones = count;
+        stones = count;
     }
     void addStones(int count){
         stones += count;
@@ -28,22 +28,14 @@ abstract class MancalaPocketGeneric {
     int getPocketOwner() {
         return pocketOwner;
     }
-    void setNextPocket(MancalaPocketGeneric firstPocket){
-        nextPocket = firstPocket;
-    }
     MancalaPocketGeneric nextPocket(int nr){
         if (nr == 0) {
             return this;
         }
         if (nr < 0) {
-            throw new UnplayablePocketException("Invalid pocket. Select a positive pocket number (0-14).");
+            throw new InputMismatchException("Invalid input. Please select a positive pocket number (0+)");
         }
         return nextPocket.nextPocket(nr - 1);
-    }
-    void switchPlayer() {
-        if (!sharedData.isGameEnd()) {
-            sharedData.switchPlayerTurn();
-        }
     }
     MancalaPocketGeneric getFirstPocketBelongToPlayer(int playerNumber) {
         if (this instanceof MancalaKalaha && nextPocket.pocketOwner == playerNumber) {

@@ -6,9 +6,12 @@ import nl.sogyo.javaopdrachten.*;
 
 class MancalaRunner {
     private final Scanner scanner = new Scanner(System.in);
+    boolean pocketsSet = false;
     void main(String[] args) {
         String newLine = System.lineSeparator();
-        MancalaFaçade Façade = new MancalaFaçade();
+
+        System.out.println("How many pockets would you like to create on each side?");
+        MancalaFaçade Façade = new MancalaFaçade(getInput());
         System.out.println("Welcome to Mancala! Please decide who is player 1.");
         while (!Façade.isGameEnd()) {
             System.out.println(newLine + "The current gameboard:");
@@ -16,7 +19,7 @@ class MancalaRunner {
             System.out.println("It is player " + Façade.gameTurn() + "'s turn." + newLine);
             try {
                 Façade.playPocket(getInput());
-            } catch (UnplayablePocketException e) {
+            } catch (UnplayablePocketException | InputMismatchException e) {
                 System.out.println("Invalid move: " + e.getMessage());
             }
         }
@@ -28,10 +31,10 @@ class MancalaRunner {
             case 1 -> {
                 System.out.println("Congratulations to player 1 for winning the game!");
             }
-            case -1 -> {
+            case 2 -> {
                 System.out.println("Congratulations to player 2 for winning the game!");
             }
-            case 0 -> {
+            case 3 -> {
                 System.out.println("The game ends in a tie (womp womp).");
             }
             default -> {
@@ -47,9 +50,15 @@ class MancalaRunner {
         while (!gotInput) {
             try {
                 input = scanner.nextInt();
+                if ((input<1) || ((input > 99) && !pocketsSet)) {
+                    throw new InputMismatchException("");
+                }
                 gotInput = true;
+                if (!pocketsSet) {
+                    pocketsSet = true;
+                }
             } catch (InputMismatchException e) {
-                System.out.println("Invalid input. Please input a number between 1 and 13.");
+                System.out.println("Invalid input. Please input a number between 0 and 99.");
                 scanner.nextLine();
             }
         }
@@ -57,13 +66,13 @@ class MancalaRunner {
     }
     public void gameBoard(int[] gameState) {
         System.out.print("  ");
-        for (int i = 12; i>6; i--) {
+        for (int i = gameState.length - 2; i>gameState.length/2 - 1; i--) {
             System.out.print(gameState[i] + " ");
         }
         System.out.println(" Player 2");
-        System.out.println(gameState[13] + "             " + gameState[6]);
+        System.out.println(gameState[gameState.length - 1] + " ".repeat(gameState.length) + gameState[gameState.length / 2 - 1]);
         System.out.print("  ");
-        for (int i = 0; i<6; i++) {
+        for (int i = 0; i< gameState.length / 2 -1; i++) {
             System.out.print(gameState[i] + " ");
         }
         System.out.println(" Player 1");

@@ -1,13 +1,12 @@
 package nl.sogyo.javaopdrachten;
 
-import Exceptions.UnplayablePocketException;
-
 public class MancalaFaçade {
-    private final MancalaSharedData sharedData = new MancalaSharedData();
+    private final MancalaSharedData sharedData;
     private final MancalaPocketGeneric pocket1;
-    {
+    public MancalaFaçade(int pocketsPerSide) {
+        sharedData = new MancalaSharedData(pocketsPerSide);
         pocket1 = new MancalaPocket(boardGenerator(2, sharedData), 1, sharedData);
-        pocket1.nextPocket(13).setNextPocket(pocket1);
+        pocket1.nextPocket(pocketsPerSide*2+1).nextPocket = pocket1;
     }
     public int gameTurn() {
         return sharedData.getPlayerTurn();
@@ -19,8 +18,8 @@ public class MancalaFaçade {
         return sharedData.getWinner();
     }
     public int[] gameState() {
-        int[] gameState = new int[14];
-        for (int i = 0; i < 14; i++) {
+        int[] gameState = new int[sharedData.pocketsPerSide * 2 + 2];
+        for (int i = 0; i < sharedData.pocketsPerSide * 2 + 2; i++) {
             gameState[i] = pocket1.nextPocket(i).getStones();
         }
         return gameState;
@@ -36,13 +35,13 @@ public class MancalaFaçade {
         }
     }
     MancalaPocketGeneric boardGenerator(int pocketnr, MancalaSharedData sharedData) {
-        if (pocketnr < 7) {
+        if (pocketnr < sharedData.pocketsPerSide + 1) {
             return new MancalaPocket(boardGenerator(pocketnr+1, sharedData), 1, sharedData);
         }
-        if (pocketnr == 7) {
+        if (pocketnr == sharedData.pocketsPerSide + 1) {
             return new MancalaKalaha(boardGenerator(pocketnr+1, sharedData), 1, sharedData);
         }
-        if (pocketnr < 14) {
+        if (pocketnr < (sharedData.pocketsPerSide +1) * 2) {
             return new MancalaPocket(boardGenerator(pocketnr+1, sharedData), 2, sharedData);
         }
         return new MancalaKalaha(null, 2, sharedData);

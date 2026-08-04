@@ -2,20 +2,22 @@ package nl.sogyo.javaopdrachten;
 import Exceptions.UnplayablePocketException;
 import org.junit.jupiter.api.*;
 
+import java.util.InputMismatchException;
+
 public class MancalaPocketGenericTest {
     private MancalaSharedData sharedData;
     private MancalaPocketGeneric pocket1;
     private MancalaFaçade domainInterface;
     @BeforeEach
     public void testSetup() {
-        sharedData = new MancalaSharedData();
-        domainInterface = new MancalaFaçade();
-        pocket1 =  new MancalaPocket(domainInterface.boardGenerator(2, sharedData), 1, sharedData);
-        pocket1.nextPocket(13).setNextPocket(pocket1);
+        sharedData = new MancalaSharedData(6);
+        domainInterface = new MancalaFaçade(6);
+        pocket1 = new MancalaPocket(domainInterface.boardGenerator(2, sharedData), 1, sharedData);
+        pocket1.nextPocket(13).nextPocket = pocket1;
     }
     @Test
     public void createAllPocketsAndKalahas(){
-        MancalaSharedData sharedData = new MancalaSharedData();
+        MancalaSharedData sharedData = new MancalaSharedData(6);
         MancalaPocketGeneric pocket1 =  new MancalaPocket(domainInterface.boardGenerator(2, sharedData), 1, sharedData);
         int stones = pocket1.nextPocket(13).getStones();
         Assertions.assertEquals(0, stones);
@@ -26,7 +28,7 @@ public class MancalaPocketGenericTest {
     }
     @Test
     public void negativeNextPocketThrowsException() {
-        Assertions.assertThrows(UnplayablePocketException.class, () -> {pocket1.nextPocket(-4);});
+        Assertions.assertThrows(InputMismatchException.class, () -> {pocket1.nextPocket(-4);});
     }
     @Test
     public void circularizePockets(){
@@ -100,7 +102,6 @@ public class MancalaPocketGenericTest {
     }
     @Test
     public void pocketBelongToPlayerGetterWorks() {
-        pocket1.nextPocket(268);
         int playernr = pocket1.nextPocket(268).getFirstPocketBelongToPlayer(2).getPocketOwner();
         Assertions.assertEquals(2, playernr);
     }
@@ -155,7 +156,25 @@ public class MancalaPocketGenericTest {
 
         pocket1.nextPocket(5).playPocket();
 
-        Assertions.assertEquals(-1, sharedData.getWinner());
+        Assertions.assertEquals(2, sharedData.getWinner());
+    }
+    @Test
+    public void tieDeclared() {
+        pocket1.setStones(0);
+        pocket1.nextPocket(1).setStones(0);
+        pocket1.nextPocket(2).setStones(0);
+        pocket1.nextPocket(3).setStones(0);
+        pocket1.nextPocket(4).setStones(0);
+        pocket1.nextPocket(5).setStones(1);
+        pocket1.nextPocket(6).setStones(23);
+
+        pocket1.nextPocket(5).playPocket();
+
+        Assertions.assertEquals(3, sharedData.getWinner());
+    }
+    @Test
+    public void errorDeclaredWhenNoWinnerSet() {
+        Assertions.assertEquals(0, sharedData.getWinner());
     }
     @Test
     public void testEndGameAddsScores() {
