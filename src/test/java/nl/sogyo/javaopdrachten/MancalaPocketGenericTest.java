@@ -199,5 +199,21 @@ public class MancalaPocketGenericTest {
         Assertions.assertEquals(48, domainInterface.getScore(1) + domainInterface.getScore(2));
         Assertions.assertTrue(domainInterface.isGameEnd());
     }
-
+    @Test
+    public void simulatedGameDeclaresWinner() {
+        int[] moves = {3, 6, 9, 10, 1, 11, 1, 12, 1, 13};
+        for (int move : moves) {
+            domainInterface.playPocket(move);
+        }
+        Assertions.assertEquals(1, domainInterface.getWinner());
+    }
+    @Test
+    public void facadePrintsGameStateAsIntArray() {
+        int[] game = domainInterface.gameState();
+        Assertions.assertEquals(14, game.length);
+    }
+    @Test
+    public void onlyTwoPlayersExist() {
+        Assertions.assertThrows(InputMismatchException.class, () -> domainInterface.getScore(3));
+    }
 }

@@ -1,5 +1,7 @@
 package nl.sogyo.javaopdrachten;
 
+import java.util.InputMismatchException;
+
 public class MancalaFaçade {
     private final MancalaSharedData sharedData;
     private final MancalaPocketGeneric pocket1;
@@ -31,7 +33,7 @@ public class MancalaFaçade {
         switch (playerNr) {
             case 1 -> { return sharedData.getScorePlayer1(); }
             case 2 -> { return sharedData.getScorePlayer2(); }
-            default -> { return 0; }
+            default -> throw new InputMismatchException("Invalid player: only 2 players can exist.");
         }
     }
     MancalaPocketGeneric boardGenerator(int pocketnr, MancalaSharedData sharedData) {
