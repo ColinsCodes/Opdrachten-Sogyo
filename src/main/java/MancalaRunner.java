@@ -9,7 +9,6 @@ class MancalaRunner {
     boolean pocketsSet = false;
     void main(String[] args) {
         String newLine = System.lineSeparator();
-
         System.out.println("How many pockets would you like to create on each side?");
         MancalaFaçade Façade = new MancalaFaçade(getInput());
         System.out.println("Welcome to Mancala! Please decide who is player 1.");
@@ -41,8 +40,6 @@ class MancalaRunner {
                 System.out.println("The game has not ended yet. How did you get here?");
             }
         }
-        System.out.println("Press ENTER to exit the program.");
-        String PauseFinalScreen = scanner.nextLine();
     }
     public int getInput() {
         boolean gotInput = false;

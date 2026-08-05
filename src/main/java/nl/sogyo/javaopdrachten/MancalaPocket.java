@@ -4,21 +4,21 @@ import Exceptions.UnplayablePocketException;
 
 class MancalaPocket extends MancalaPocketGeneric {
     private final int stepsFromKalaha;
-    MancalaPocket(MancalaPocketGeneric nextPocket, int owner, MancalaSharedData sharedData) {
-        super(nextPocket, owner, sharedData, 4);
+    MancalaPocket(int owner, MancalaSharedData sharedData, int pocketnr) {
+        super(owner, sharedData, 4, pocketnr);
         this.stepsFromKalaha = kalahaStepCounter();
     }
     int kalahaStepCounter(){
         if (nextPocket(1) instanceof MancalaKalaha) {
             return 1;
         } else {
-            return nextPocket(1).kalahaStepCounter() + 1;
+            return nextPocket.kalahaStepCounter() + 1;
         }
     }
-    MancalaPocketGeneric oppositePocket(){
+    private MancalaPocketGeneric oppositePocket(){
         return nextPocket(stepsFromKalaha*2);
     }
-    void claimOpposite () {
+    private void claimOpposite () {
         addStones(oppositePocket().getStones());
         oppositePocket().setStones(0);
     }
@@ -29,11 +29,11 @@ class MancalaPocket extends MancalaPocketGeneric {
         }
         if (oppositePocket().getStones() > 0 && getStones() == 1 && stonesAmount == 0 && getPocketOwner() == sharedData.getPlayerTurn()) {
             claimOpposite();
-            nextPocket(stepsFromKalaha).addStones(getStones());
+            getKalaha(getPocketOwner()).addStones(getStones());
             setStones(0);
         }
         if (stonesAmount > 0) {
-            nextPocket(1).passStones(stonesAmount);
+            nextPocket.passStones(stonesAmount);
         } else {
             checkGameEnd();
             sharedData.switchTurn();
@@ -43,7 +43,7 @@ class MancalaPocket extends MancalaPocketGeneric {
         if (sharedData.getPlayerTurn() == getPocketOwner() && getStones() > 0) {
             int stonesAmount = getStones();
             setStones(0);
-            nextPocket(1).passStones(stonesAmount);
+            nextPocket.passStones(stonesAmount);
             return;
         }
         if (sharedData.getPlayerTurn() != getPocketOwner()) {

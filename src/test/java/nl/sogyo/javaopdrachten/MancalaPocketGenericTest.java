@@ -12,15 +12,19 @@ public class MancalaPocketGenericTest {
     public void testSetup() {
         sharedData = new MancalaSharedData(6);
         domainInterface = new MancalaFaçade(6);
-        pocket1 = new MancalaPocket(domainInterface.boardGenerator(2, sharedData), 1, sharedData);
-        pocket1.nextPocket(13).nextPocket = pocket1;
+        pocket1 = new MancalaPocket(1, sharedData, 1);
+        pocket1.getPocket(14).nextPocket = pocket1;
     }
     @Test
     public void createAllPocketsAndKalahas(){
         MancalaSharedData sharedData = new MancalaSharedData(6);
-        MancalaPocketGeneric pocket1 =  new MancalaPocket(domainInterface.boardGenerator(2, sharedData), 1, sharedData);
-        int stones = pocket1.nextPocket(13).getStones();
+        MancalaPocketGeneric pocket1 =  new MancalaPocket(1, sharedData, 1);
+        int stones = pocket1.getPocket(14).getStones();
         Assertions.assertEquals(0, stones);
+    }
+    @Test
+    public void nextPocketInstanceofMancalaPocket() {
+        Assertions.assertTrue(pocket1.nextPocket instanceof MancalaPocket);
     }
     @Test
     public void nextPocketZeroEqualsCurrentPocket() {
@@ -101,11 +105,6 @@ public class MancalaPocketGenericTest {
         Assertions.assertEquals(0, pocket1.nextPocket(13).getStones());
     }
     @Test
-    public void pocketBelongToPlayerGetterWorks() {
-        int playernr = pocket1.nextPocket(268).getFirstPocketBelongToPlayer(2).getPocketOwner();
-        Assertions.assertEquals(2, playernr);
-    }
-    @Test
     public void oppositeStonesClaimedWhenFinalPocketEmpty() {
         pocket1.nextPocket(4).setStones(0);
 
@@ -124,14 +123,6 @@ public class MancalaPocketGenericTest {
         pocket1.nextPocket(2).playPocket();
 
         Assertions.assertEquals(1, sharedData.getPlayerTurn());
-    }
-    @Test
-    public void testScoreAdder() {
-        pocket1.setStones(15);
-
-        int initialScore = pocket1.scoreAdder(pocket1);
-
-        Assertions.assertEquals(4 * 5 + 15, initialScore);
     }
     @Test
     public void gameCanEnd(){
@@ -175,20 +166,6 @@ public class MancalaPocketGenericTest {
     @Test
     public void errorDeclaredWhenNoWinnerSet() {
         Assertions.assertEquals(0, sharedData.getWinner());
-    }
-    @Test
-    public void testEndGameAddsScores() {
-        pocket1.tallyScores();
-
-        int scorePlayer1 = pocket1.getStones() +
-                pocket1.nextPocket(1).getStones() +
-                pocket1.nextPocket(2).getStones() +
-                pocket1.nextPocket(3).getStones() +
-                pocket1.nextPocket(4).getStones() +
-                pocket1.nextPocket(5).getStones() +
-                pocket1.nextPocket(6).getStones();
-
-        Assertions.assertEquals(scorePlayer1, sharedData.getScorePlayer1());
     }
     @Test
     public void simulatedGameLosesNoStones() {

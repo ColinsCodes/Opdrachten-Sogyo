@@ -31,6 +31,9 @@ class MancalaSharedData {
     void setScorePlayer2(int score) {
         scorePlayer2 = score;
     }
+    void endGame() {
+        gameEnd = true;
+    }
     void setWinner() {
         switch (Integer.compare(scorePlayer1, scorePlayer2)) {
             case 0 -> winner = 3;
@@ -38,7 +41,6 @@ class MancalaSharedData {
             case -1 -> winner = 2;
             default -> winner = 0;
         }
-        gameEnd = true;
     }
     void switchTurn() {
         if (!gameEnd) {
